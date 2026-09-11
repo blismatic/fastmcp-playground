@@ -2,12 +2,24 @@ import json
 import random
 from pathlib import Path
 
-from fastmcp import FastMCP
+from fastmcp import Context, FastMCP
 from fastmcp.apps.generative import GenerativeUI
+from fastmcp.server.lifespan import lifespan
 from prefab_ui.app import PrefabApp
 from prefab_ui.components import Badge, Column, Heading, Row, Text
+from pymongo import MongoClient
 
-mcp = FastMCP("My MCP Server")
+
+@lifespan
+async def mongodb_lifespan(server):
+    client = MongoClient("mongodb://localhost:27017/")
+    try:
+        yield {"db": client["myDB"]}
+    finally:
+        client.close()
+
+
+mcp = FastMCP("My MCP Server", lifespan=mongodb_lifespan)
 mcp.add_provider(GenerativeUI())
 
 DATA_MODEL_SCHEMA_PATH = Path("schemas/data_model_schema.json")
@@ -54,6 +66,33 @@ def get_parent_schema() -> dict:
 
     parent["properties"]["record"]["properties"]["data"] = get_data_model_schema()
     return parent
+
+
+def validate_pipeline(pipeline: list[dict]) -> None:
+    # Only allow read-only, non-mutating aggregation stages
+    ALLOWED_AGGREGATION_STAGES = {"$match", "$project", "$group", "$sort", "$limit", "$skip", "$count", "$unwind", "$lookup", "$facet", "$addFields"}
+
+    for stage in pipeline:
+        stage_name = next(iter(stage))
+        if stage_name not in ALLOWED_AGGREGATION_STAGES:
+            raise ValueError(f"MongoDB stage '{stage_name}' is not allowed in reports.")
+
+
+@mcp.tool
+def run_report(pipeline: list[dict], ctx: Context) -> list[dict]:
+    """Run a read-only aggregation pipeline against MongoDB to build a report.
+
+    IMPORTANT: The pipeline's field names and structure MUST conform to the
+    schema returned by the `data://schema/main` resource. Read that resource
+    first if you haven't already, and only reference fields it defines. The pipeline
+    must also only use read-only aggregation stages, and cannot modify or delete any data.
+    """
+    MAX_PIPELINE_TIME_MS = 30 * 1000  # 30 seconds
+    validate_pipeline(pipeline)
+
+    db = ctx.lifespan_context["db"]
+    results = db["myCollection"].aggregate(pipeline, maxTimeMS=MAX_PIPELINE_TIME_MS)
+    return list(results)
 
 
 if __name__ == "__main__":
