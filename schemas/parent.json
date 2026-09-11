@@ -1,0 +1,53 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "catalog": {
+            "type": "string",
+            "description": "The catalog field specifies the Knackly catalog to which the record belongs."
+        },
+        "record_id": {
+            "type": "string",
+            "description": "The record_id field uniquely identifies the record within its catalog."
+        },
+        "record": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The id field uniquely identifies the record. This is the same as the record_id field at the top level."
+                },
+                "label": {
+                    "type": "string",
+                    "description": "The label field provides a human-readable name for the record."
+                },
+                "detail": {
+                    "type": "string",
+                    "description": "The detail field provides additional information about the record."
+                },
+                "lastModified": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The lastModified field indicates when the record was last modified."
+                },
+                "lastModifiedBy": {
+                    "type": "string",
+                    "description": "The lastModifiedBy field indicates which user last modified the record."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The created field indicates when the record was created."
+                },
+                "createdBy": {
+                    "type": "string",
+                    "description": "The createdBy field indicates which user created the record."
+                },
+                "data": {
+                    "$ref": "./data_model_schema.json",
+                    "description": "The data field contains the actual data for the record, which is defined by the data model schema."
+                }
+            }
+        }
+    }
+}
