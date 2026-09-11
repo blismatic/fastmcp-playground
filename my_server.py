@@ -1,3 +1,5 @@
+import random
+
 from fastmcp import FastMCP
 from prefab_ui.app import PrefabApp
 from prefab_ui.components import Badge, Column, Heading, Row, Text
@@ -15,6 +17,18 @@ def greet(name: str) -> PrefabApp:
             Badge("Greeted", variant="success")
 
     return PrefabApp(view=view)
+
+
+@mcp.tool
+def roll_dice(n_dice: int) -> list[int]:
+    """Roll `n_dice` 6-sided dice and return the results."""
+    return [random.randint(1, 6) for _ in range(n_dice)]
+
+
+@mcp.tool
+def generate_number(lower_bound: int, upper_bound: int) -> int:
+    """Generate a random number between `lower_bound` and `upper_bound`. Result is inclusive of both bounds."""
+    return random.randint(lower_bound, upper_bound)
 
 
 if __name__ == "__main__":
