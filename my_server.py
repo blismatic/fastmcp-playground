@@ -1,20 +1,21 @@
 import json
-import random
+import os
 from pathlib import Path
 
 from fastmcp import Context, FastMCP
 from fastmcp.apps.generative import GenerativeUI
 from fastmcp.server.lifespan import lifespan
-from prefab_ui.app import PrefabApp
-from prefab_ui.components import Badge, Column, Heading, Row, Text
 from pymongo import MongoClient
 
 
 @lifespan
 async def mongodb_lifespan(server):
-    client = MongoClient("mongodb://localhost:27017/")
+    # client = MongoClient("mongodb://localhost:27017/")
+    client = MongoClient(
+        f"mongodb+srv://{os.environ['MONGO_USER']}:{os.environ['MONGO_PASSWORD']}@{os.environ['MONGO_CLUSTER']}/?retryWrites=true&w=majority"
+    )
     try:
-        yield {"db": client["myDB"]}
+        yield {"db": client[os.environ["MONGO_DB"]]}
     finally:
         client.close()
 
@@ -24,30 +25,6 @@ mcp.add_provider(GenerativeUI())
 
 DATA_MODEL_SCHEMA_PATH = Path("schemas/data_model_schema.json")
 PARENT_SCHEMA_PATH = Path("schemas/parent_schema.json")
-
-
-@mcp.tool(app=True)
-def greet(name: str) -> PrefabApp:
-    """Greet someone with a visual card."""
-    with Column(gap=4, css_class="p-6") as view:
-        Heading(f"Hello, {name}!")
-        with Row(gap=2, align="center"):
-            Text("Status")
-            Badge("Greeted", variant="success")
-
-    return PrefabApp(view=view)
-
-
-@mcp.tool
-def roll_dice(n_dice: int) -> list[int]:
-    """Roll `n_dice` 6-sided dice and return the results."""
-    return [random.randint(1, 6) for _ in range(n_dice)]
-
-
-@mcp.tool
-def generate_number(lower_bound: int, upper_bound: int) -> int:
-    """Generate a random number between `lower_bound` and `upper_bound`. Result is inclusive of both bounds."""
-    return random.randint(lower_bound, upper_bound)
 
 
 @mcp.resource("data://schema/main", name="Data Model Schema", description="A schema for the data model.", mime_type="application/json")
@@ -91,7 +68,8 @@ def run_report(pipeline: list[dict], ctx: Context) -> list[dict]:
     validate_pipeline(pipeline)
 
     db = ctx.lifespan_context["db"]
-    results = db["myCollection"].aggregate(pipeline, maxTimeMS=MAX_PIPELINE_TIME_MS)
+    coll = db[os.getenv("MONGO_COLLECTION")]
+    results = coll.aggregate(pipeline, maxTimeMS=MAX_PIPELINE_TIME_MS)
     return list(results)
 
 
