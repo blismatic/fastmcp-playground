@@ -10,21 +10,15 @@ To test FastMCP "apps": `uv run fastmcp dev apps my_server.py`
 
 # Developer notes
 ## NOT NEEDED UNLESS USING STDIO TRANSPORT
-For testing in the Claude Desktop app, add the following to the `claude_desktop_config.json` file (typically found inside of `AppData / Roaming` somewhere).
+For testing in the Claude Desktop app (with HTTP transport), add the following to the `claude_desktop_config.json` file (typically found inside of `AppData / Roaming` somewhere).
 
 ```json
 "mcpServers": {
     "seth-super-cool-mcp": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "run",
-        "--project",
-        "C:\\seth-data\\fastmcp-playground",
-        "--env-file",
-        "C:\\seth-data\\fastmcp-playground\\.env",
-        "fastmcp",
-        "run",
-        "C:\\seth-data\\fastmcp-playground\\my_server.py"
+        "fastmcp-remote", "http://127.0.0.1:8000/mcp",
+        "--auth", "none"
       ]
     }
   }

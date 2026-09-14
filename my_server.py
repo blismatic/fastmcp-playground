@@ -73,5 +73,16 @@ def run_report(pipeline: list[dict], ctx: Context) -> list[dict]:
     return list(results)
 
 
+@mcp.tool
+def ping(ctx: Context) -> str:
+    """Ping the MongoDB server to check if it's reachable."""
+    db = ctx.lifespan_context["db"]
+    try:
+        db.command("ping")
+        return "MongoDB server is reachable."
+    except Exception as e:
+        return f"Failed to reach MongoDB server: {e}"
+
+
 if __name__ == "__main__":
     mcp.run()
