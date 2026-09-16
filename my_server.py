@@ -65,7 +65,7 @@ def validate_pipeline(pipeline: list[dict]) -> None:
             raise ValueError(f"MongoDB stage '{stage_name}' is not allowed in reports.")
 
 
-@mcp.tool(name="Run Report", annotations=ToolAnnotations(read_only_hint=True))
+@mcp.tool(name="run_report", annotations=ToolAnnotations(read_only_hint=True))
 def run_report(pipeline: list[dict], ctx: Context) -> list[dict]:
     """Run a read-only aggregation pipeline against MongoDB to build a report.
 
@@ -84,7 +84,7 @@ def run_report(pipeline: list[dict], ctx: Context) -> list[dict]:
     return list(results)
 
 
-@mcp.tool(name="Ping database connection")
+@mcp.tool(name="ping_database_connection")
 def ping(ctx: Context) -> str:
     """Ping the database server to check if it's reachable."""
     db = ctx.lifespan_context["db"]
