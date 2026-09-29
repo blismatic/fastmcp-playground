@@ -102,8 +102,8 @@ Commands are bash syntax (Git Bash). In Windows PowerShell 5.1, JSON arguments n
   - [x] Create a dedicated MongoDB user with the `read` role scoped to the one collection
 - [ ] Rate limiting
 - [ ] Logging
-- [ ] Optimize the time it takes to build reports
-  - [ ] Potentially implement Progress Reporting so that users can see their reports being built (https://gofastmcp.com/servers/progress)
+- [x] Optimize the time it takes to build reports
+  - [x] Potentially implement Progress Reporting so that users can see their reports being built (https://gofastmcp.com/servers/progress)
 - [ ] MongoDB stuff
   - [ ] Bulk populate the entire schemaJsonRecords collection
   - [ ] Build the tool to automatically keep the schemaJsonRecords collection updated
