@@ -1,5 +1,7 @@
 # Project specific
 .env
+.env.dev
+.pytest_cache
 
 # Python-generated files
 __pycache__/

@@ -5,6 +5,19 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "boto3>=1.35",
+    "cachetools>=5.5",
     "fastmcp[apps]>=4.0.3",
     "pymongo>=4.18.1",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = ["integration: needs a live MongoDB / AWS; excluded by default"]
+addopts = "-m 'not integration'"
