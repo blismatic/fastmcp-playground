@@ -17,6 +17,7 @@ from pymongo.errors import OperationFailure
 
 from identity import AUTH_ENABLED, describe_current_identity, get_current_sub, require_catalog_scope, warm_up_permissions_backend
 from pipeline_guard import MAX_RESULT_BYTES, PipelineRejected, build_safe_pipeline, jsonify, read_capped
+from report_limits import ReportLimits
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ mcp = FastMCP(
 )
 mcp.add_provider(GenerativeUI())
 mcp.add_transform(ResourcesAsTools(mcp))
+mcp.add_middleware(ReportLimits())
 
 
 @mcp.resource("data://schema/main", name="Data Model Schema", description="A schema for the data model.", mime_type="application/json")

@@ -101,6 +101,8 @@ Commands are bash syntax (Git Bash). In Windows PowerShell 5.1, JSON arguments n
   - [x] Look into how to set / determine the expiration date from an Auth0 token (`whoami` tool)
   - [x] Create a dedicated MongoDB user with the `read` role scoped to the one collection
 - [ ] Rate limiting
+  - [ ] Need IP-based limits on the public /register endpoint, configured on the deployment server (AWS, CloudFlare, Prefect Horizon, etc...). Also worth covering the other public OAuth routes: /authorize, /consent, /token, /auth/callback
+  - [x] Have "sub"-based limits on the /run_report endpoint and a shared concurrent limit that is under the 40 threads limit (`report_limits.py`: per user 2 at once and 30 per minute; 30 at once server-wide)
 - [ ] Logging
 - [x] Optimize the time it takes to build reports
   - [x] Potentially implement Progress Reporting so that users can see their reports being built (https://gofastmcp.com/servers/progress)
