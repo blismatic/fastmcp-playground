@@ -14,6 +14,8 @@ from fastmcp.utilities.types import Image
 from mcp.types import Icon, ToolAnnotations
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
 
 from audit_logging import AUDIT_LOG, AuditLogging, audit
 from identity import AUTH_ENABLED, describe_current_identity, get_current_sub, require_catalog_scope, warm_up_permissions_backend
@@ -95,6 +97,13 @@ mcp.add_transform(ResourcesAsTools(mcp))
 # Middleware runs in the order added: audit logging first, so rate-limited calls are logged too.
 mcp.add_middleware(AuditLogging())
 mcp.add_middleware(ReportLimits())
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def setup_page(request: Request) -> HTMLResponse:
+    """Serve a static HTML page for setup instructions."""
+    html_file = (Path(__file__).parent / "setup.html").read_text(encoding="utf-8")
+    return HTMLResponse(html_file)
 
 
 @mcp.resource("data://schema/main", name="Data Model Schema", description="A schema for the data model.", mime_type="application/json")

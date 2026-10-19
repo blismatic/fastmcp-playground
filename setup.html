@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lightning Docs MCP</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314213d'/%3E%3Cpath d='M18.5 4 8 18h7l-1.5 10L24 14h-7z' fill='%23ffc93c'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14213d;
+    --ink-soft: #4a5672;
+    --paper: #f6f7f9;
+    --surface: #ffffff;
+    --line: #dde1e8;
+    --volt: #f3ad3c;
+    --volt-ink: #14213d;
+    --code-bg: #14213d;
+    --code-ink: #e8ecf4;
+    --sans: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8ecf4;
+      --ink-soft: #9aa5bd;
+      --paper: #0f1729;
+      --surface: #16203a;
+      --line: #27324d;
+      --code-bg: #0a1020;
+      --code-ink: #e8ecf4;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 var(--sans);
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 4rem 1.25rem 5rem; }
+
+  h1 { font-size: clamp(2rem, 5vw, 2.75rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+  h2 { font-size: 1.5rem; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 0.5rem; }
+  p { margin: 0 0 1rem; }
+  .lede { color: var(--ink-soft); font-size: 1.1875rem; max-width: 38rem; }
+  section { margin-top: 4rem; }
+  a { color: inherit; text-underline-offset: 3px; }
+
+  :focus-visible { outline: 3px solid var(--volt); outline-offset: 2px; }
+
+  /* The endpoint: the one loud element on the page */
+  .endpoint {
+    margin-top: 2rem;
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--volt);
+    color: var(--volt-ink);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .endpoint code {
+    flex: 1; min-width: 0;
+    padding: 1.1rem 1.25rem;
+    font: 500 clamp(0.95rem, 2.6vw, 1.15rem)/1.4 var(--mono);
+    overflow-x: auto; white-space: nowrap;
+  }
+  .endpoint button {
+    border: 0; border-left: 2px solid rgba(20, 33, 61, 0.15);
+    background: transparent; color: inherit;
+    padding: 0 1.1rem; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .endpoint button:hover { background: rgba(20, 33, 61, 0.08); }
+  .endpoint button svg { width: 1.25rem; height: 1.25rem; }
+  .icon-button .icon-check { display: none; }
+  .icon-button.copied .icon-copy { display: none; }
+  .icon-button.copied .icon-check { display: block; }
+  .endpoint-note { color: var(--ink-soft); font-size: 0.9375rem; margin-top: 0.75rem; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 0.25rem; margin: 1.5rem 0 0;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs [role="tab"] {
+    border: 0; background: none; color: var(--ink-soft);
+    font: 500 1rem var(--sans); padding: 0.75rem 0.9rem;
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+    cursor: pointer; white-space: nowrap;
+  }
+  .tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--volt); }
+  .panel { padding-top: 1.5rem; }
+  .panel[hidden] { display: none; }
+
+  .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    position: relative; padding: 0 0 1.25rem 2.75rem;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0.05rem;
+    width: 1.75rem; height: 1.75rem; border-radius: 50%;
+    border: 1.5px solid var(--ink); display: grid; place-items: center;
+    font: 700 0.875rem/1 var(--sans);
+  }
+  .requirement { color: var(--ink-soft); font-size: 0.9375rem; border-left: 3px solid var(--line); padding-left: 0.9rem; margin: 0 0 1.5rem; }
+
+  /* Code blocks */
+  .code { position: relative; margin: 0.25rem 0 1.25rem; }
+  .code pre {
+    margin: 0; padding: 1rem 1.25rem; padding-right: 3.25rem;
+    background: var(--code-bg); color: var(--code-ink);
+    border-radius: 8px; overflow-x: auto;
+    font: 400 0.875rem/1.6 var(--mono);
+  }
+  .copy-small {
+    position: absolute; top: 0.6rem; right: 0.6rem;
+    border: 1px solid rgba(232, 236, 244, 0.25); background: transparent; color: var(--code-ink);
+    padding: 0.4rem; border-radius: 6px; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .copy-small:hover { background: rgba(232, 236, 244, 0.1); }
+  .copy-small svg { width: 1rem; height: 1rem; }
+  code.inline { font: 0.9em var(--mono); background: var(--surface); border: 1px solid var(--line); padding: 0.05rem 0.35rem; border-radius: 4px; }
+
+  /* Prompts */
+  .prompt-group { margin-top: 2rem; }
+  .prompt-group h3 { font-size: 1.0625rem; font-weight: 700; margin: 0 0 0.75rem; }
+  .prompts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .prompts li {
+    display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between;
+    padding: 0.9rem 0; border-bottom: 1px solid var(--line);
+  }
+  .prompts q { quotes: none; }
+  .prompts button {
+    flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    padding: 0.4rem; border-radius: 6px; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .prompts button:hover { border-color: var(--ink-soft); }
+  .prompts button svg { width: 1.05rem; height: 1.05rem; }
+
+  footer { margin-top: 5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 0.9375rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    button { transition: background-color 120ms, border-color 120ms; }
+  }
+</style>
+</head>
+<body>
+<!-- Icons: edit these symbols to change every copy button at once. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="3" width="8" height="4" rx="1"/>
+    <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>
+  </symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 12.5 10 17.5 19 7"/>
+  </symbol>
+</svg>
+<main>
+
+  <header>
+    <h1>Lightning Docs MCP</h1>
+    <p class="lede">Allows an AI assistant to query and generate reports on your Lightning Docs data.</p>
+
+    <div class="endpoint">
+      <code id="mcp-url"></code>
+      <button type="button" class="icon-button" data-copy-target="mcp-url" aria-label="Copy server URL" title="Copy server URL">
+        <svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg>
+        <svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg>
+      </button>
+    </div>
+    <p class="endpoint-note">Upon your first time connecting, you'll be asked to log in to your Lightning Docs account via Auth0.</p>
+  </header>
+
+  <section aria-labelledby="connect-heading">
+    <h2 id="connect-heading">Connect your assistant</h2>
+    <p>Select your AI client below and follow the steps.</p>
+
+    <div class="tabs" role="tablist" aria-label="MCP clients">
+      <button role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="true">ChatGPT</button>
+      <button role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="false" tabindex="-1">Claude</button>
+      <button role="tab" id="tab-claude-code" aria-controls="panel-claude-code" aria-selected="false" tabindex="-1">Claude Code</button>
+      <button role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1">Gemini CLI</button>
+      <button role="tab" id="tab-cursor" aria-controls="panel-cursor" aria-selected="false" tabindex="-1">Cursor</button>
+      <button role="tab" id="tab-vscode" aria-controls="panel-vscode" aria-selected="false" tabindex="-1">VS Code</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-chatgpt" aria-labelledby="tab-chatgpt">
+      <p class="requirement">[Plan / setting requirements for ChatGPT.]</p>
+      <ol class="steps">
+        <li>[Step]</li>
+        <li>[Step — paste the server URL from above.]</li>
+        <li>[Step]</li>
+      </ol>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude" hidden>
+      <p class="requirement">[Plan requirements for Claude.ai / Claude Desktop custom connectors.]</p>
+      <ol class="steps">
+        <li>[Step]</li>
+        <li>[Step — paste the server URL from above.]</li>
+        <li>[Step]</li>
+      </ol>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-claude-code" aria-labelledby="tab-claude-code" hidden>
+      <ol class="steps">
+        <li>[Step — run this in your terminal:]
+          <div class="code"><pre id="snippet-claude-code">claude mcp add --transport http [server-name] <span data-mcp-url></span></pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-claude-code" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
+        </li>
+        <li>[Step]</li>
+      </ol>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-gemini" aria-labelledby="tab-gemini" hidden>
+      <ol class="steps">
+        <li>[Step — add this to <code class="inline">~/.gemini/settings.json</code>:]
+          <div class="code"><pre id="snippet-gemini">{
+  "mcpServers": {
+    "[server-name]": {
+      "httpUrl": "<span data-mcp-url></span>"
+    }
+  }
+}</pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-gemini" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
+        </li>
+        <li>[Step]</li>
+      </ol>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-cursor" aria-labelledby="tab-cursor" hidden>
+      <ol class="steps">
+        <li>[Step — add this to <code class="inline">~/.cursor/mcp.json</code>:]
+          <div class="code"><pre id="snippet-cursor">{
+  "mcpServers": {
+    "[server-name]": {
+      "url": "<span data-mcp-url></span>"
+    }
+  }
+}</pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-cursor" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
+        </li>
+        <li>[Step]</li>
+      </ol>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-vscode" aria-labelledby="tab-vscode" hidden>
+      <ol class="steps">
+        <li>[Step — add this to <code class="inline">.vscode/mcp.json</code>:]
+          <div class="code"><pre id="snippet-vscode">{
+  "servers": {
+    "[server-name]": {
+      "type": "http",
+      "url": "<span data-mcp-url></span>"
+    }
+  }
+}</pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-vscode" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
+        </li>
+        <li>[Step]</li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="prompts-heading">
+    <h2 id="prompts-heading">Things to ask</h2>
+    <p>Once connected, try one of these prompts...</p>
+
+    <div class="prompt-group">
+      <h3>[Group name]</h3>
+      <ul class="prompts">
+        <li><q id="p1">[Example prompt]</q><button type="button" class="icon-button" data-copy-target="p1" aria-label="Copy prompt" title="Copy prompt"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></li>
+        <li><q id="p2">[Example prompt]</q><button type="button" class="icon-button" data-copy-target="p2" aria-label="Copy prompt" title="Copy prompt"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></li>
+        <li><q id="p3">[Example prompt]</q><button type="button" class="icon-button" data-copy-target="p3" aria-label="Copy prompt" title="Copy prompt"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></li>
+      </ul>
+    </div>
+
+    <div class="prompt-group">
+      <h3>[Group name]</h3>
+      <ul class="prompts">
+        <li><q id="p4">[Example prompt]</q><button type="button" class="icon-button" data-copy-target="p4" aria-label="Copy prompt" title="Copy prompt"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></li>
+        <li><q id="p5">[Example prompt]</q><button type="button" class="icon-button" data-copy-target="p5" aria-label="Copy prompt" title="Copy prompt"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>© Copyright 2026 Lightning Docs. All rights reserved.</p>
+  </footer>
+
+</main>
+
+<script>
+  // The page is served by the MCP server itself, so the endpoint is this origin + the MCP path.
+  const MCP_PATH = "/mcp";
+  const mcpUrl = location.origin + MCP_PATH;
+
+  document.getElementById("mcp-url").textContent = mcpUrl;
+  document.querySelectorAll("[data-mcp-url]").forEach(el => { el.textContent = mcpUrl; });
+
+  // Copy buttons
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-copy-target]");
+    if (!button) return;
+    const text = document.getElementById(button.dataset.copyTarget).textContent;
+    await navigator.clipboard.writeText(text);
+
+    const label = button.getAttribute("aria-label");
+    button.classList.add("copied");
+    button.setAttribute("aria-label", "Copied");
+    setTimeout(() => {
+      button.classList.remove("copied");
+      button.setAttribute("aria-label", label);
+    }, 1500);
+  });
+
+  // Tabs (WAI-ARIA tabs pattern: click + arrow keys)
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+  function selectTab(tab) {
+    tabs.forEach(t => {
+      const selected = t === tab;
+      t.setAttribute("aria-selected", String(selected));
+      t.tabIndex = selected ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !selected;
+    });
+    tab.focus();
+  }
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => selectTab(tab));
+    tab.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") selectTab(tabs[(i + 1) % tabs.length]);
+      if (e.key === "ArrowLeft") selectTab(tabs[(i - 1 + tabs.length) % tabs.length]);
+    });
+  });
+</script>
+</body>
+</html>
