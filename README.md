@@ -49,11 +49,24 @@ Run the my_client.py script against a locally running HTTP transport server to t
 To test FastMCP "apps": `uv run fastmcp dev apps my_server.py`
 
 # Developer notes
+## Logging
+All logs go to **stderr** (stdout carries the MCP protocol on stdio).
+
+- **Audit lines** (`audit_logging.py`): one pure-JSON line per event, for every `tools/call` and `resources/read`:
+  - `request_start`: `time` (UTC), `sub`, `method`, and `payload` (the tool name and arguments, including the pipeline), cut off at 4 KB;
+  - `report_result` (from `run_report`): `returned_count` and `truncated`. Never the report data;
+  - `request_success` with `duration_ms`, or `request_error` with `duration_ms` and `error` (the message the model saw, e.g. a guard or rate-limit rejection).
+- **Our own modules' logs**: `logger = logging.getLogger(__name__)` then `logger.debug(...)` / `logger.info(...)`. `LOG_LEVEL` (default `INFO`) applies to our modules only; set `LOG_LEVEL=DEBUG` in `.env.dev` to see debug lines. Third-party libraries stay at WARNING.
+- **FastMCP's own messages** (e.g. "Starting MCP server") keep FastMCP's formatting, with their level controlled by `FASTMCP_LOG_LEVEL`.
+- **Log files (optional, local dev):** set `LOG_DIR=logs` (e.g. in `.env.dev`) to also write `logs/audit.jsonl` (the audit lines, pure JSON) and `logs/server.log` (everything else, including FastMCP's messages). A relative `LOG_DIR` is relative to the project folder. The files aren't rotated, so delete them whenever you like; `logs/` is gitignored.
+
+Audit logs contain Auth0 `sub`s and the values users searched for in pipelines. Decide retention and access when choosing where deployed logs are stored.
+
 ## AWS credentials
 The server reads DynamoDB with whatever credentials boto3 finds. Locally that's the profile named by `AWS_PROFILE` in `.env` (the region also comes from the profile).
 
 ### One-time setup: the dev role
-1. IAM → Policies → Create policy → JSON (use your real `DYNAMO_*` table names, account ID, and region):
+1. IAM > Policies > Create policy > JSON (use your real `DYNAMO_*` table names, account ID, and region):
    ```json
    {
      "Version": "2012-10-17",
@@ -71,7 +84,7 @@ The server reads DynamoDB with whatever credentials boto3 finds. Locally that's 
    }
    ```
    Name it `<some-policy-name-here>`. The same policy goes on the production task role later.
-2. IAM → Roles → Create role → Trusted entity: **AWS account** → **This account** → attach the policy above → name it `<some-role-name-here>`.
+2. IAM > Roles > Create role > Trusted entity: **AWS account** > **This account** > attach the policy above > name it `<some-role-name-here>`.
 3. Add a profile to `~/.aws/config` that assumes the role using your own credentials (no new keys to manage):
    ```ini
    [profile <profile-name-here>]
@@ -103,7 +116,7 @@ Commands are bash syntax (Git Bash). In Windows PowerShell 5.1, JSON arguments n
 - [ ] Rate limiting
   - [ ] Need IP-based limits on the public /register endpoint, configured on the deployment server (AWS, CloudFlare, Prefect Horizon, etc...). Also worth covering the other public OAuth routes: /authorize, /consent, /token, /auth/callback
   - [x] Have "sub"-based limits on the /run_report endpoint and a shared concurrent limit that is under the 40 threads limit (`report_limits.py`: per user 2 at once and 30 per minute; 30 at once server-wide)
-- [ ] Logging
+- [x] Logging (`audit_logging.py`: one JSON audit line per tool call / resource read, plus `LOG_LEVEL` for our own `logger.debug` / `logger.info`; see Developer notes)
 - [x] Optimize the time it takes to build reports
   - [x] Potentially implement Progress Reporting so that users can see their reports being built (https://gofastmcp.com/servers/progress)
 - [ ] MongoDB stuff

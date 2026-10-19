@@ -15,9 +15,32 @@ from mcp.types import Icon, ToolAnnotations
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 
+from audit_logging import AUDIT_LOG, AuditLogging, audit
 from identity import AUTH_ENABLED, describe_current_identity, get_current_sub, require_catalog_scope, warm_up_permissions_backend
 from pipeline_guard import MAX_RESULT_BYTES, PipelineRejected, build_safe_pipeline, jsonify, read_capped
 from report_limits import ReportLimits
+
+# Logs go to stderr -- never stdout, which carries the MCP protocol on stdio. Third-party libraries
+# stay at WARNING; LOG_LEVEL applies only to our own modules, so DEBUG doesn't flood the output.
+# FastMCP's own messages are separate, controlled by FASTMCP_LOG_LEVEL.
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+for _name in ("__main__", "my_server", "identity", "pipeline_guard", "report_limits", "audit_logging"):
+    logging.getLogger(_name).setLevel(os.getenv("LOG_LEVEL", "INFO"))
+
+# Optional, for local dev: also write logs to files. LOG_DIR unset means no files. No rotation, because
+# Claude Desktop runs several copies of a stdio server and Windows can't rename a file another one has open.
+if log_dir := os.getenv("LOG_DIR"):
+    log_path = Path(__file__).parent / log_dir  # relative paths are relative to the project folder
+    log_path.mkdir(parents=True, exist_ok=True)
+
+    text_file = logging.FileHandler(log_path / "server.log", encoding="utf-8")
+    text_file.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    logging.getLogger().addHandler(text_file)  # our modules + third-party warnings
+    logging.getLogger("fastmcp").addHandler(text_file)  # FastMCP's own messages (it doesn't propagate)
+
+    audit_file = logging.FileHandler(log_path / "audit.jsonl", encoding="utf-8")
+    audit_file.setFormatter(logging.Formatter("%(message)s"))
+    AUDIT_LOG.addHandler(audit_file)
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +92,8 @@ mcp = FastMCP(
 )
 mcp.add_provider(GenerativeUI())
 mcp.add_transform(ResourcesAsTools(mcp))
+# Middleware runs in the order added: audit logging first, so rate-limited calls are logged too.
+mcp.add_middleware(AuditLogging())
 mcp.add_middleware(ReportLimits())
 
 
@@ -144,6 +169,7 @@ def run_report(pipeline: list[dict], ctx: Context) -> dict:
             docs, truncation = read_capped(cursor, MAX_RESULT_BYTES)
     except OperationFailure as exc:
         raise ToolError(_explain_mongo_failure(exc)) from None
+    audit("report_result", returned_count=len(docs), truncated=truncation is not None)
     return {"results": jsonify(docs), "returned_count": len(docs), "truncated": truncation is not None, "note": truncation}
 
 
