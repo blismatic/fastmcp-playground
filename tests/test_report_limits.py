@@ -99,7 +99,7 @@ def test_other_tools_are_never_limited(monkeypatch):
         h = Harness(monkeypatch, max_per_minute=0)
         with pytest.raises(ToolError):
             await h.call("run_report")
-        for tool in ("whoami", "read_resource", "ping_database_connection"):
+        for tool in ("whoami", "get_report_schema", "ping_database_connection"):
             assert await h.call(tool) == "ok"
 
     asyncio.run(run())

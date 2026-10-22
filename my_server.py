@@ -9,7 +9,7 @@ from fastmcp.apps.generative import GenerativeUI
 from fastmcp.exceptions import ToolError
 from fastmcp.server.auth.providers.auth0 import Auth0Provider
 from fastmcp.server.lifespan import lifespan
-from fastmcp.server.transforms import ResourcesAsTools
+from fastmcp.tools.base import ToolResult
 from fastmcp.utilities.types import Image
 from mcp.types import Icon, ToolAnnotations
 from pymongo import MongoClient
@@ -93,7 +93,6 @@ mcp = FastMCP(
     auth=build_auth(),
 )
 mcp.add_provider(GenerativeUI())
-mcp.add_transform(ResourcesAsTools(mcp))
 # Middleware runs in the order added: audit logging first, so rate-limited calls are logged too.
 mcp.add_middleware(AuditLogging())
 mcp.add_middleware(ReportLimits())
@@ -106,24 +105,20 @@ async def setup_page(request: Request) -> HTMLResponse:
     return HTMLResponse(html_file)
 
 
-@mcp.resource("data://schema/main", name="Data Model Schema", description="A schema for the data model.", mime_type="application/json")
-def get_data_model_schema() -> dict:
-    DATA_MODEL_SCHEMA_PATH = Path(__file__).parent / "schemas" / "data_model_schema.json"
-    return json.loads(DATA_MODEL_SCHEMA_PATH.read_text(encoding="utf-8"))
+@mcp.tool(name="get_report_schema", annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True))
+def get_report_schema() -> ToolResult:
+    """Return the JSON schema of the documents that `run_report` queries.
 
-
-@mcp.resource(
-    "data://schema/parent",
-    name="Parent Schema",
-    description="A wrapped schema for the parent document which includes metadata but also contains the main data model.",
-    mime_type="application/json",
-)
-def get_parent_schema() -> dict:
-    PARENT_SCHEMA_PATH = Path(__file__).parent / "schemas" / "parent.json"
-    parent = json.loads(PARENT_SCHEMA_PATH.read_text(encoding="utf-8"))
-
-    parent["properties"]["record"]["properties"]["data"] = get_data_model_schema()
-    return parent
+    Call this once per conversation before writing a pipeline: every field name and the nesting in a
+    pipeline must match this schema. The record's own data is under `record.data`. Fields marked
+    DEPRECATED in their `usage` notes still hold data in older records; the note says where newer data
+    lives, so check both places.
+    """
+    schemas = Path(__file__).parent / "schemas"
+    parent = json.loads((schemas / "parent.json").read_text(encoding="utf-8"))
+    parent["properties"]["record"]["properties"]["data"] = json.loads((schemas / "data_model_schema.json").read_text(encoding="utf-8"))
+    # Text only (no structured copy), so clients don't receive this ~44k-token schema twice.
+    return ToolResult(content=json.dumps(parent, separators=(",", ":")))
 
 
 def _explain_mongo_failure(exc: OperationFailure) -> str:
@@ -144,9 +139,8 @@ def run_report(pipeline: list[dict], ctx: Context) -> dict:
     """Run a read-only aggregation pipeline against MongoDB to build a report.
 
     IMPORTANT: The pipeline's field names and structure MUST conform to the
-    schema returned by the `data://schema/parent` resource. Read that resource
-    first if you haven't already. Only reference fields that match the layout
-    of the `data://schema/parent` schema.
+    schema returned by the `get_report_schema` tool. Call it first if you
+    haven't already in this conversation, and only reference fields from it.
 
     Allowed stages: $match, $project, $addFields, $set, $unset, $group, $sort,
     $sortByCount, $limit, $skip, $count, $unwind, $replaceRoot, $replaceWith,

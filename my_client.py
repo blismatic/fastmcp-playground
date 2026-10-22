@@ -10,7 +10,7 @@ import os
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
-SERVER_URL = "http://localhost:8000/mcp"
+SERVER_URL = "http://127.0.0.1:8000/mcp"
 
 GROUP_BY_CATALOG = [{"$group": {"_id": "$catalog", "n": {"$sum": 1}}}]
 LOOKUP_EXPLOIT = [{"$lookup": {"from": os.getenv("MONGO_COLLECTION", "records"), "pipeline": [], "as": "leak"}}]

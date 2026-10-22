@@ -22,7 +22,7 @@ In your `claude_desktop_config.json` file (which can be found by opening Claude 
 Make sure that in the `.env.dev` file, `MCP_AUTH_ENABLED` is set to `false`, and `MCP_DEV_SUB` has an Auth0 sub that you want to use.
 
 ### HTTP with actual Auth0 authentication
-Start the server manually with the following command: `uv run --env-file .env fastmcp run my_server.py --transport http --port 8000` (the server is then reachable at `http://localhost:8000/mcp`)
+Start the server manually with the following command: `uv run --env-file .env fastmcp run my_server.py --transport http --port 8000` (the server is then reachable at `http://127.0.0.1:8000/mcp`) (note: `127.0.0.1:8000` is the same as `localhost:8000`)
 
 In your `claude_desktop_config.json` file (which can be found by opening Claude Desktop -> settings -> This computer -> Developer -> Edit config), add the following:
 ```json
@@ -32,7 +32,7 @@ In your `claude_desktop_config.json` file (which can be found by opening Claude 
             "command": "uvx",
             "args": [
                 "fastmcp-remote",
-                "http://localhost:8000/mcp",
+                "http://127.0.0.1:8000/mcp"
             ]
         }
     }
