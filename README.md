@@ -130,6 +130,11 @@ Commands are bash syntax (Git Bash). In Windows PowerShell 5.1, JSON arguments n
 5. `exit`
 6. `sudo systemctl restart lightning-docs-mcp`
 
+## How to watch the live server logs
+1. For just the new lines from the terminal: `sudo journalctl -u lightning-docs-mcp -f`
+2. With some recent history before following: `sudo journalctl -u lightning-docs-mcp -n 50 -f`
+3. To safely stop watching: `CTRL + C`
+
 Once whatever problem occurred is fixed, just `git checkout main` and then go back to the `git pull` step up above.
 
 # TODO in order
