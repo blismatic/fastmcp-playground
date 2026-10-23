@@ -106,6 +106,32 @@ Commands are bash syntax (Git Bash). In Windows PowerShell 5.1, JSON arguments n
 | Set up a profile with access keys | `aws configure --profile <name>` |
 | Set up / refresh an SSO profile | `aws configure sso` / `aws sso login --profile <name>` |
 
+## Deployment / Update Flow
+1. Make changes on local copy of repo
+2. Run unit tests locally: `uv run pytest`
+3. Commit and push changes
+4. Remotely connect into the hosting server
+5. Login as the `mcp` user: `sudo -iu mcp`
+6. Navigate to the directory that the server code is stored in: `cd ~/app`
+7. Pull the changes from git: `git pull`
+8. Install any new or updated packages: `uv sync --frozen --no-dev`
+9. Logout as the `mcp` user: `exit`
+10. Restart the mcp server: `sudo systemctl restart lightning-docs-mcp`
+11. Check that the mcp server is running:
+    1.  Look for a green "active (running)" text: `sudo systemctl status lightning-docs-mcp`
+    2.  Look for no errors in the immediate server terminal: `sudo journalctl -u lightning-docs-mcp -n 30 --no-pager`
+    3.  Look for valid JSON returned from: `curl -s http://127.0.0.1:8000/.well-known/oauth-protected-resource/mcp`
+
+## How to rollback the server to a previous version
+1. `sudo -iu mcp`
+2. `cd ~/app`
+3. `git checkout <good-commit-id>`
+4. `uv sync --frozen --no-dev`
+5. `exit`
+6. `sudo systemctl restart lightning-docs-mcp`
+
+Once whatever problem occurred is fixed, just `git checkout main` and then go back to the `git pull` step up above.
+
 # TODO in order
 - [x] Auth using Auth0 (verified end to end over HTTP with a staff Microsoft login, and over STDIO with a non-staff dev sub)
   - [x] Get staff status / list of catalogs via Auth0 "sub" claim and Dynamo tables (`identity.py`)
@@ -121,9 +147,9 @@ Commands are bash syntax (Git Bash). In Windows PowerShell 5.1, JSON arguments n
   - [x] Potentially implement Progress Reporting so that users can see their reports being built (https://gofastmcp.com/servers/progress)
 - [ ] MongoDB stuff
   - [ ] Bulk populate the entire schemaJsonRecords collection
-  - [ ] Build the tool to automatically keep the schemaJsonRecords collection updated
-  - [ ] Update the daily double checker tool to keep the schemaJsonRecords collection updated
+  - [x] Build the tool to automatically keep the schemaJsonRecords collection updated
+  - [x] Update the daily double checker tool to keep the schemaJsonRecords collection updated
 - [ ] Deployment
-  - [ ] Getting the server hosted on an actual HTTPS host somewhere
+  - [x] Getting the server hosted on an actual HTTPS host somewhere
   - [ ] Look into how to get the MCP server added / packaged for things like Claude, Gemini, ChatGPT, etc...
   - [ ] Possible Claude plugin so people can run slash commands for it?
