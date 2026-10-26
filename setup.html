@@ -83,7 +83,7 @@
   .icon-button.copied .icon-check { display: block; }
   .heading-link { display: inline-grid; vertical-align: middle; margin-left: 0.4rem; color: var(--ink-soft); opacity: 0; transition: opacity 0.15s; }
   .heading-link svg { width: 1rem; height: 1rem; }
-  h2:hover .heading-link, h3:hover .heading-link, .heading-link:focus-visible, .heading-link.copied { opacity: 1; }
+  h1:hover .heading-link, h2:hover .heading-link, h3:hover .heading-link, .heading-link:focus-visible, .heading-link.copied { opacity: 1; }
   @media (hover: none) { .heading-link { opacity: 0.5; } } /* touch screens can't hover */
   .endpoint-note { color: var(--ink-soft); font-size: 0.9375rem; margin-top: 0.75rem; }
 
@@ -342,10 +342,10 @@
   });
 
   // Heading links: hover a heading, click the icon to copy a link straight to that section
-  document.querySelectorAll("main h2[id], main h3[id]").forEach(heading => {
+  document.querySelectorAll("main h1, main h2[id], main h3[id]").forEach(heading => {
     const link = document.createElement("a");
     link.className = "icon-button heading-link";
-    link.href = "#" + heading.id;
+    link.href = heading.tagName === "H1" ? "#" : "#" + heading.id;  // "#" = top of the page
     link.setAttribute("aria-label", "Copy link to this section");
     link.innerHTML = '<svg class="icon-copy" aria-hidden="true"><use href="#icon-link"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg>';
     link.addEventListener("click", async () => {  // the browser still follows the link and scrolls to the section
