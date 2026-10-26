@@ -81,6 +81,10 @@
   .icon-button .icon-check { display: none; }
   .icon-button.copied .icon-copy { display: none; }
   .icon-button.copied .icon-check { display: block; }
+  .heading-link { display: inline-grid; vertical-align: middle; margin-left: 0.4rem; color: var(--ink-soft); opacity: 0; transition: opacity 0.15s; }
+  .heading-link svg { width: 1rem; height: 1rem; }
+  h2:hover .heading-link, h3:hover .heading-link, .heading-link:focus-visible, .heading-link.copied { opacity: 1; }
+  @media (hover: none) { .heading-link { opacity: 0.5; } } /* touch screens can't hover */
   .endpoint-note { color: var(--ink-soft); font-size: 0.9375rem; margin-top: 0.75rem; }
 
   /* Tabs */
@@ -166,6 +170,10 @@
   <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5 12.5 10 17.5 19 7"/>
   </symbol>
+  <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/>
+    <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>
+  </symbol>
 </svg>
 <main>
 
@@ -183,8 +191,8 @@
     <p class="endpoint-note">Upon your first time connecting, you'll be asked to log in to your Lightning Docs account via Auth0.</p>
   </header>
 
-  <section aria-labelledby="connect-heading">
-    <h2 id="connect-heading">Connect your assistant</h2>
+  <section aria-labelledby="connect">
+    <h2 id="connect">Connect your assistant</h2>
     <p>Select your AI client below and follow the steps.</p>
 
     <div class="tabs" role="tablist" aria-label="MCP clients">
@@ -250,8 +258,8 @@
     </div>
   </section>
 
-  <section aria-labelledby="prompts-heading">
-    <h2 id="prompts-heading">Things to ask</h2>
+  <section aria-labelledby="prompts">
+    <h2 id="prompts">Things to ask</h2>
     <p>Once connected, try one of these prompts...</p>
 
     <div class="prompt-group">
@@ -293,7 +301,7 @@
     </div>
 
     <div class="endpoint-note">
-      <h2>Tips</h2>
+      <h3 id="tips">Tips</h3>
       <ul>
         <li>Preface your prompt with <code class="inline">In Lightning Docs...</code> or <code class="inline">Using the Lightning Docs MCP...</code> to ensure that the AI understands the context.</li>
         <li>Name a time range when you have one in mind.</li>
@@ -331,6 +339,21 @@
       button.classList.remove("copied");
       button.setAttribute("aria-label", label);
     }, 1500);
+  });
+
+  // Heading links: hover a heading, click the icon to copy a link straight to that section
+  document.querySelectorAll("main h2[id], main h3[id]").forEach(heading => {
+    const link = document.createElement("a");
+    link.className = "icon-button heading-link";
+    link.href = "#" + heading.id;
+    link.setAttribute("aria-label", "Copy link to this section");
+    link.innerHTML = '<svg class="icon-copy" aria-hidden="true"><use href="#icon-link"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg>';
+    link.addEventListener("click", async () => {  // the browser still follows the link and scrolls to the section
+      await navigator.clipboard.writeText(link.href);
+      link.classList.add("copied");
+      setTimeout(() => link.classList.remove("copied"), 1500);
+    });
+    heading.append(link);
   });
 
   // Tabs (WAI-ARIA tabs pattern: click + arrow keys)
