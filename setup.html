@@ -191,17 +191,22 @@
       <button role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="true">ChatGPT</button>
       <button role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="false" tabindex="-1">Claude</button>
       <button role="tab" id="tab-claude-code" aria-controls="panel-claude-code" aria-selected="false" tabindex="-1">Claude Code</button>
-      <button role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1">Gemini CLI</button>
-      <button role="tab" id="tab-cursor" aria-controls="panel-cursor" aria-selected="false" tabindex="-1">Cursor</button>
-      <button role="tab" id="tab-vscode" aria-controls="panel-vscode" aria-selected="false" tabindex="-1">VS Code</button>
+      <button role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1">Gemini</button>
     </div>
 
     <div class="panel" role="tabpanel" id="panel-chatgpt" aria-labelledby="tab-chatgpt">
-      <p class="requirement">[Plan / setting requirements for ChatGPT.]</p>
+      <p class="requirement">May require an Enterprise/Edu account or a Business account with ChatGPT.</p>
       <ol class="steps">
-        <li>[Step]</li>
-        <li>[Step — paste the server URL from above.]</li>
-        <li>[Step]</li>
+        <li>Go to "Plugins" in the top left.</li>
+        <li>Click the "Add" dropdown in the top right → Add custom MCP server.</li>
+        <li>Give the server a name, such as <code class="inline">Lightning Docs MCP</code>.</li>
+        <li>Under connection type, leave it as "Server URL".</li>
+        <li>Paste the server URL from above into the connection field.</li>
+        <li>Authentication: choose <code class="inline">OAuth</code>.</li>
+        <li>Check the "I understand and want to continue" checkbox.</li>
+        <li>Select "Create as a plugin" → "Connect Lightning Docs".</li>
+        <li>Upon your browser opening, click the green "Allow Access" button.</li>
+        <li>Log in to your Lightning Docs 3.0 account.</li>
       </ol>
     </div>
 
@@ -210,63 +215,37 @@
       <ol class="steps">
         <li>Click on your profile icon and go to Settings → Customize → Connectors → Add Custom Connector.</li>
         <li>Give a name to the connector - this can be whatever you would like.</li>
-        <li>Enter the server URL from above.</li>
+        <li>Paste the server URL from above.</li>
         <li>Make sure </li>
       </ol>
     </div>
 
     <div class="panel" role="tabpanel" id="panel-claude-code" aria-labelledby="tab-claude-code" hidden>
+      <p class="requirement">For developers / more advanced users.</p>
       <ol class="steps">
-        <li>[Step — run this in your terminal:]
-          <div class="code"><pre id="snippet-claude-code">claude mcp add --transport http [server-name] <span data-mcp-url></span></pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-claude-code" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
+        <li>Open your terminal of choice.</li>
+        <li>Add the server, replacing <code class="inline">&lt;server-name&gt;</code> with any name of your choice:</li>
+          <div class="code"><pre id="snippet-claude-code">claude mcp add --transport http &lt;server-name&gt; <span data-mcp-url></span></pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-claude-code" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
         </li>
-        <li>[Step]</li>
+        <li>Authenticate with the MCP server. Your browser should automatically open to complete the authentication process.</li>
+          <div class="code"><pre id="snippet-claude-code">claude mcp login &lt;server-name&gt; <span data-mcp-url></span></pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-claude-code" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
+        </li>
+        <li>Click the green "Allow Access" button.</li>
+        <li>Log in to your Lightning Docs 3.0 account.</li>
+        <p class="requirement">To remove the server, simply run <code class="inline">claude mcp remove &lt;server-name&gt;</code>.</p>
       </ol>
     </div>
 
     <div class="panel" role="tabpanel" id="panel-gemini" aria-labelledby="tab-gemini" hidden>
       <ol class="steps">
-        <li>[Step — add this to <code class="inline">~/.gemini/settings.json</code>:]
-          <div class="code"><pre id="snippet-gemini">{
-  "mcpServers": {
-    "[server-name]": {
-      "httpUrl": "<span data-mcp-url></span>"
-    }
-  }
-}</pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-gemini" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
-        </li>
-        <li>[Step]</li>
-      </ol>
-    </div>
-
-    <div class="panel" role="tabpanel" id="panel-cursor" aria-labelledby="tab-cursor" hidden>
-      <ol class="steps">
-        <li>[Step — add this to <code class="inline">~/.cursor/mcp.json</code>:]
-          <div class="code"><pre id="snippet-cursor">{
-  "mcpServers": {
-    "[server-name]": {
-      "url": "<span data-mcp-url></span>"
-    }
-  }
-}</pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-cursor" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
-        </li>
-        <li>[Step]</li>
-      </ol>
-    </div>
-
-    <div class="panel" role="tabpanel" id="panel-vscode" aria-labelledby="tab-vscode" hidden>
-      <ol class="steps">
-        <li>[Step — add this to <code class="inline">.vscode/mcp.json</code>:]
-          <div class="code"><pre id="snippet-vscode">{
-  "servers": {
-    "[server-name]": {
-      "type": "http",
-      "url": "<span data-mcp-url></span>"
-    }
-  }
-}</pre><button type="button" class="copy-small icon-button" data-copy-target="snippet-vscode" aria-label="Copy code" title="Copy code"><svg class="icon-copy" aria-hidden="true"><use href="#icon-copy"/></svg><svg class="icon-check" aria-hidden="true"><use href="#icon-check"/></svg></button></div>
-        </li>
-        <li>[Step]</li>
+        <li>Go to Settings → Personal Intelligence → Connected Apps.</li>
+        <li>Click the "+ Custom" button.</li>
+        <li>Paste the server URL from above.</li>
+        <li>Select "Next".</li>
+        <li>Check the "I understand and accept..." checkbox, and then click "Connect".</li>
+        <li>Click the "Agree and continue" button.</li>
+        <li>Upon your browser opening, click the green "Allow Access" button.</li>
+        <li>Log in to your Lightning Docs 3.0 account.</li>
       </ol>
     </div>
   </section>
