@@ -221,10 +221,18 @@
     <div class="panel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude" hidden>
       <p class="requirement">Must be either an organization owner or have an individual Claude account with appropriate permissions. If you are an organization member, you must ask your administrator to add the custom connector for you.</p>
       <ol class="steps">
-        <li>Click on your profile icon and go to Settings → Customize → Connectors → Add Custom Connector.</li>
-        <li>Give a name to the connector - this can be whatever you would like.</li>
-        <li>Paste the server URL from above.</li>
-        <li>Make sure </li>
+        <li>Click on your profile icon and go to Settings → Customize → Connectors.</li>
+        <p class="requirement">If you already see the "Lightning Docs MCP" connector, skip directly to step 9.</p>
+        <li>Click the "+ Add" button -> "Add custom connector".</li>
+        <li>Name the connector: <code class="inline">Lightning Docs MCP</code>.</li>
+        <li>In "MCP Server URL", paste the URL from above.</li>
+        <li>Click the "Continue" button.</li>
+        <li>Under "Authentication", select <code class="inline">Sign in now</code>.</li>
+        <li>Under "OAuth Client", select <code class="inline">Use Claude's published identity</code>.</li>
+        <li>Click the "Add" button.</li>
+        <li>Click the "Connect" button. Your browser should automatically open.</li>
+        <li>Click "Continue connecting", and then click the green "Allow Access" button.</li>
+        <li>Log in to your Lightning Docs 3.0 account.</li>
       </ol>
     </div>
 
