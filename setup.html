@@ -21,6 +21,7 @@
     --brand-deep: #5914aa;
     --brand-light: #9863c4;
     --volt: #f3ad3c;
+    --amber: #ffa900;
     --volt-ink: #000000;
     --code-bg: #45205f;
     --code-ink: #ffffff;
@@ -40,15 +41,15 @@
   main { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 5rem; }
 
   /* Header band: the same purple gradient and white logo as the lightningdocs.ai header */
-  .hero { background: linear-gradient(110deg, var(--brand-deep) 0%, var(--brand-light) 100%); color: #ffffff; }
+  .hero { background: linear-gradient(110deg, var(--brand-deep) 0%, var(--brand-light) 100%); color: #ffffff; border-bottom: 10px solid var(--amber); }
   .hero-inner { max-width: 46rem; margin: 0 auto; padding: 1.75rem 1.25rem 3.5rem; }
   .hero .logo { display: inline-block; margin-bottom: 3rem; }
   .hero .logo img { display: block; height: 2.25rem; width: auto; }
   .hero .lede, .hero .endpoint-note { color: #ffffff; }
   .hero .heading-link { color: #ffffff; }
 
-  h1 { font-size: clamp(2.25rem, 6vw, 3rem); line-height: 1.1; font-weight: 300; margin: 0 0 0.75rem; }
-  h2 { font-size: 2rem; line-height: 1.2; font-weight: 300; color: var(--brand); margin: 0 0 0.5rem; }
+  h1 { font-size: clamp(2.25rem, 6vw, 3rem); line-height: 1.1; font-weight: 700; margin: 0 0 0.75rem; }
+  h2 { font-size: 2rem; line-height: 1.2; font-weight: 700; color: var(--brand); margin: 0 0 0.5rem; }
   p { margin: 0 0 1rem; }
   .lede { color: var(--ink-soft); font-size: 1.1875rem; max-width: 38rem; }
   section { margin-top: 4rem; }
@@ -155,7 +156,22 @@
   .prompts button:hover { border-color: var(--brand); color: var(--brand); }
   .prompts button svg { width: 1.05rem; height: 1.05rem; }
 
-  footer { margin-top: 5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 0.9375rem; }
+  /* Footer: the same band as the lightningdocs.ai footer */
+  .site-footer { background: linear-gradient(180deg, var(--brand-deep) 0%, var(--brand-light) 100%); color: #ffffff; border-top: 10px solid var(--amber); }
+  .footer-inner { max-width: 64rem; margin: 0 auto; padding: 3.5rem 1.25rem; display: grid; gap: 2.5rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+  .footer-brand { text-align: center; }
+  .footer-brand img { width: 11.5rem; height: auto; }
+  .footer-brand .tagline { font-weight: 700; font-size: 0.9375rem; margin: 1.5rem 0 0.75rem; }
+  .footer-brand p { font-size: 0.875rem; }
+  .site-footer h2 { font-size: 1.25rem; font-weight: 700; color: var(--volt); margin: 0 0 1rem; }
+  .site-footer ul { list-style: none; margin: 0; padding: 0; }
+  .site-footer li + li { margin-top: 0.4rem; }
+  .site-footer ul a { text-decoration: none; }
+  .site-footer ul a:hover { color: var(--volt); }
+  .social { display: flex; gap: 0.6rem; }
+  .social a { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; background: var(--brand-deep); border-radius: 4px; }
+  .social a:hover { background: var(--brand); }
+  .social svg { width: 1.25rem; height: 1.25rem; fill: #ffffff; }
 
   @media (prefers-reduced-motion: no-preference) {
     button { transition: background-color 120ms, border-color 120ms; }
@@ -324,11 +340,36 @@
     </div>
   </section>
 
-  <footer>
-    <p>© Copyright 2026 Lightning Docs. All rights reserved.</p>
-  </footer>
-
 </main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="https://lightningdocs.ai/"><img src="https://lightningdocs.ai/wp-content/uploads/2025/12/Lightning-Docs-White-Azo-V.png" alt="Lightning Docs" width="673" height="602"></a>
+      <p class="tagline">A fully automated, cloud-based loan document solution.</p>
+      <p>© Copyright 2026</p>
+    </div>
+    <nav aria-labelledby="footer-links">
+      <h2 id="footer-links">Quick Links</h2>
+      <ul>
+        <li><a href="https://lightningdocs.ai/solutions/">Solutions</a></li>
+        <li><a href="https://lightningdocs.ai/about-us/">About Us</a></li>
+        <li><a href="https://lightningdocs.ai/insights/">Insights</a></li>
+        <li><a href="https://lightningdocs.ai/testimonials/">Testimonials</a></li>
+        <li><a href="https://lightningdocs.ai/terms-and-conditions/">View Terms</a></li>
+        <li><a href="https://lightningdocs.ai/contact-us/">Contact Us</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Connect With Us</h2>
+      <div class="social">
+        <a href="https://linkedin.com/company/lightning-docs" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="4.5" r="2.2"/><rect x="3" y="9" width="4" height="12"/><path d="M9.5 9h3.8v1.7c.6-1.1 2-2 3.9-2 3.4 0 4.3 2.2 4.3 5.1V21h-4v-6.3c0-1.5-.3-2.8-1.9-2.8-1.7 0-2.1 1.2-2.1 2.8V21h-4z"/></svg></a>
+        <a href="https://www.youtube.com/@lightningdocsTV" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15V9l5.8 3z"/></svg></a>
+        <a href="https://www.instagram.com/lightningdocs/" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm5 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM17.3 5.6a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
 
 <script>
   // The page is served by the MCP server itself, so the endpoint is this origin + the MCP path.
