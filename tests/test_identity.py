@@ -67,6 +67,16 @@ def test_non_archived_non_staff_gets_their_catalogs(use_fake):
     assert not perms.is_staff and perms.catalogs == ("PKCap", "Renovo")
 
 
+def test_demo_org_member_is_staff(use_fake):
+    use_fake(FakeDynamo([{"globalRole": {"S": "user"}}], org_ids=["o1", "o2"], catalogs={"o1": "PKCap", "o2": "Demo"}))
+    assert identity._lookup_permissions_uncached(SUB).is_staff
+
+
+def test_archived_demo_org_member_is_denied(use_fake):
+    use_fake(FakeDynamo([{"isArchived": {"BOOL": True}}], org_ids=["o1"], catalogs={"o1": "Demo"}))
+    assert not identity._lookup_permissions_uncached(SUB).has_any_access
+
+
 @pytest.fixture
 def whoami_as(monkeypatch):
     """Run describe_current_identity() for a caller with the given permissions, no token or DynamoDB."""

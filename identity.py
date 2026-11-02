@@ -4,9 +4,9 @@ The Auth0 `sub` comes from the verified access token. Staff status and catalog a
 come from a live DynamoDB read (cached for a short TTL), so permission changes take
 effect without the user logging in again.
 
-Everything here fails closed: the only way to get `is_staff=True` is an explicit
-"staff"/"superadmin" globalRole in UsersTable, and any lookup failure raises rather than
-returning a permissive default.
+Everything here fails closed: the only ways to get `is_staff=True` are an explicit
+"staff"/"superadmin" globalRole in UsersTable or membership in the "Demo" catalog's
+organization, and any lookup failure raises rather than returning a permissive default.
 """
 
 import functools
@@ -31,6 +31,7 @@ DEV_SUB = os.getenv("MCP_DEV_SUB") or None
 PERMS_TTL_SECONDS = 60
 
 STAFF_ROLES = frozenset({"staff", "superadmin"})
+STAFF_CATALOG = "Demo"  # members of this catalog's organization are treated as staff (exact case)
 BATCH_GET_MAX_KEYS = 100
 BATCH_GET_MAX_RETRIES = 5
 
@@ -201,6 +202,8 @@ def _lookup_permissions_uncached(sub: str) -> UserPermissions:
             logger.error("BatchGetItem left unprocessed keys after %d retries", BATCH_GET_MAX_RETRIES)
             raise PermissionsUnavailableError("The permissions service is busy. Try again shortly.")
 
+    if STAFF_CATALOG in catalogs:
+        return UserPermissions(sub, is_staff=True)  # catalogs irrelevant -- full access
     return UserPermissions(sub, is_staff=False, catalogs=tuple(sorted(catalogs)))
 
 
